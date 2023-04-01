@@ -51,7 +51,6 @@ module.exports = NodeHelper.create({
         }
       },
       function (error, response, body) {
-        console.log(body);
         if (error) {
           self.sendSocketNotification("FETCH_ERROR", {
             error: error

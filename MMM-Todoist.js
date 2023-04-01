@@ -47,7 +47,7 @@ Module.register("MMM-Todoist", {
     displayLastUpdate: false, //add or not a line after the tasks with the last server update time
     displayLastUpdateFormat: "dd - HH:mm:ss", //format to display the last update. See Moment.js documentation for all display possibilities
     maxTitleLength: 50, //10 to 50. Value to cut the line if wrapEvents: true
-    wrapEvents: false, // wrap events to multiple lines breaking at maxTitleLength
+    wrapEvents: true, // wrap events to multiple lines breaking at maxTitleLength
     displayTasksWithoutDue: true, // Set to false to not print tasks without a due date
     displayTasksWithinDays: -1, // If >= 0, do not print tasks with a due date more than this number of days into the future (e.g., 0 prints today and overdue)
     // 2019-12-31 by thyed
@@ -154,11 +154,11 @@ Module.register("MMM-Todoist", {
     }
 
     // keep track of user's projects list (used to build the "whitelist")
-    this.userList =
+    /*     this.userList =
       typeof this.config.projects !== "undefined"
         ? JSON.parse(JSON.stringify(this.config.projects))
         : [];
-
+ */
     this.sendSocketNotification("FETCH_TODOIST", this.config);
 
     //add ID to the setInterval function to be able to stop it later on
@@ -221,6 +221,7 @@ Module.register("MMM-Todoist", {
   socketNotificationReceived: function (notification, payload) {
     if (notification === "TASKS") {
       if (this.config.debug) {
+        Log.info("Todoist Payload:");
         Log.info(payload);
       }
       this.config.tasks = this.filterTodoistData(payload);
@@ -247,7 +248,8 @@ Module.register("MMM-Todoist", {
   filterTodoistData: function (tasks) {
     var self = this;
     var items = [];
-    var labelIds = [];
+    let projIds = [];
+    var subtasks = [];
 
     if (tasks == undefined) {
       return;
@@ -259,16 +261,29 @@ Module.register("MMM-Todoist", {
       return;
     }
 
+    //convert project names to ids
+    this.config.projects.forEach((project) => {
+      let proj = tasks.projects.find(
+        (p) => project == p.id || project == p.name
+      );
+      if (proj !== undefined) {
+        projIds.push(proj.id);
+      }
+    });
+    this.config.projects = projIds;
+
     if (this.config.blacklistProjects) {
       // take all projects in payload, and remove the ones specified by user
       // i.e., convert user's "whitelist" into a "blacklist"
+      let userList = this.config.projects;
       this.config.projects = [];
       tasks.projects.forEach((project) => {
-        if (this.userList.includes(project.id)) {
+        if (userList.includes(project.id)) {
           return; // blacklisted
         }
         this.config.projects.push(project.id);
       });
+
       if (self.config.debug) {
         console.log(
           "MMM-Todoist: original list of projects was blacklisted.\n" +
@@ -278,7 +293,7 @@ Module.register("MMM-Todoist", {
       }
     }
 
-    //include all tasks with due dates (if set in config) OR with due dates within config number of days
+    //if config is set so, filter out tasks without due date or with due date too far in the future
     if (
       self.config.displayTasksWithinDays > -1 ||
       !self.config.displayTasksWithoutDue
@@ -287,7 +302,6 @@ Module.register("MMM-Todoist", {
         if (item.due === null) {
           return self.config.displayTasksWithoutDue;
         }
-
         var oneDay = 24 * 60 * 60 * 1000;
         var dueDateTime = self.parseDueDate(item.due.date);
         var dueDate = new Date(
@@ -302,33 +316,31 @@ Module.register("MMM-Todoist", {
       });
     }
 
-    //filter tasks to include in template data by the criteria specified in the Config
+    //task collection and conversion according to criteria specified in the Config
     tasks.items.forEach(function (item) {
-      // do not include any subtasks
-      if (item.parent_id != null && !self.config.displaySubtasks) {
+      //only include subtasks if displaySubtasks is true
+      if (item.parent_id != null) {
+        subtasks.push(item);
+        items.push(item);
         return;
       }
 
-      // Filter to include all tasks with labels listed in config (if any labels are listed)
+      // collect all tasks with labels listed in config (if any labels are listed)
       if (self.config.labels.length > 0 && item.labels.length > 0) {
         // Check all the labels assigned to the task. Add to items if match with configured label
         for (let label of item.labels) {
-          for (let labelName of self.config.labels) {
-            if (label == labelName) {
-              items.push(item);
-              return;
-            }
+          if (self.config.labels.includes(label)) {
+            items.push(item);
+            return;
           }
         }
       }
 
-      // Filter to include tasks with projects listed in config (if any projects are listed)
+      // collect all tasks with projects listed in config (if any projects are listed)
       if (self.config.projects.length > 0) {
-        self.config.projects.forEach(function (project) {
-          if (item.project_id == project) {
-            items.push(item);
-          }
-        });
+        if (self.config.projects.includes(item.project_id)) {
+          items.push(item);
+        }
       }
     }); //end of filters
 
@@ -375,7 +387,7 @@ Module.register("MMM-Todoist", {
 
       //inserting project info into task item for template
       if (self.config.displayOrder.includes("project")) {
-        let proj = tasks.projects.find(({ pid }) => pid === item.project_id);
+        let proj = tasks.projects.find((obj) => obj.id === item.project_id);
         if (proj === undefined) {
           item.project = {
             name: "---",
@@ -429,7 +441,13 @@ Module.register("MMM-Todoist", {
           }
         }
       }
+      //copy any subtasks into item.subtasks
+      if (self.config.displaySubtasks) {
+        item.subtasks = items.filter((t) => t.parent_id == item.id);
+      }
     });
+    //filter out all subtasks (after they have been copied to parent tasks)
+    items = items.filter((item) => item.parent_id === null);
 
     // Sorting code if you want to add new methods. //
     switch (self.config.sortType) {
@@ -486,10 +504,28 @@ Module.register("MMM-Todoist", {
   },
   sortByTodoist: function (itemstoSort) {
     itemstoSort.sort(function (a, b) {
-      // 2019-12-31 bugfix by thyed, property is child_order, not item_order
-      var itemA = a.child_order,
-        itemB = b.child_order;
-      return itemA - itemB;
+      if (!a.parent_id && !b.parent_id) {
+        // neither have parent_id so both are parent tasks, sort by their id
+        return a.id - b.id;
+      } else if (a.parent_id === b.parent_id) {
+        // both are children of the same parent task, sort by child order
+        return a.child_order - b.child_order;
+      } else if (a.parent_id === b.id) {
+        // a is a child of b, so it goes after b
+        return 1;
+      } else if (b.parent_id === a.id) {
+        // b is a child of a, so it goes after a
+        return -1;
+      } else if (!a.parent_id) {
+        // a is a parent task, b is a child (but not of a), so compare a to b's parent
+        return a.id - b.parent_id;
+      } else if (!b.parent_id) {
+        // b is a parent task, a is a child (but not of b), so compare b to a's parent
+        return a.parent_id - b.id;
+      } else {
+        // both are child tasks, but with different parents so sort by their parents
+        return a.parent_id - b.parent_id;
+      }
     });
     return itemstoSort;
   },

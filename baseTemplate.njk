@@ -1,24 +1,10 @@
-<div class="tasks-wrapper small">
-    <table class="task-table">
-        <thead>
-            {% for header in displayOrder %}
-                <th id="header-{{header}}">
-                    {% if displayColumnHeadings == "text" %}
-                        {{header}}
-                    {% elseif displayColumnHeadings == "icons" %}
-                        <span class="header-icon-{{header}}"></span>
-                    {% endif %}
-                </th>
-            {% endfor %}
-        </thead>
-        <tbody>
-        {% for task in tasks.items %}
-        <tr>
+{% macro displayTask(task, type="parent") %}
+ <tr>
             {% for col in displayOrder %}
 
                 <td class="col-{{col}}" style="max-width:{{maxTitleLength}}ch;">
 
-                {% if col == "labels" %}
+                {% if col == "labels"%}
                     {%for label in task.labels %}
                         <span class="task-label-bubble">{{label}}</span>
                     {% endfor %}
@@ -44,8 +30,8 @@
                         </span>
                     {% endif %}
 
-                {% elseif col == "content" and not wrapEvents %}
-                    <div class="nowrapping">{{task.content}}</div>
+                {% elseif col == "content" %}
+                    <div class="{{'nowrapping' if not wrapEvents}} {{type}}">{{task.content}}</div>
 
                 {% elseif col == "duedate" %}
                     <span class="{{task.isDue}}">{{task.duedate}}</span> 
@@ -55,6 +41,31 @@
                 </td>
             {% endfor %}
         </tr>
+
+
+{% endmacro %}
+
+<div class="tasks-wrapper small">
+    <table class="task-table">
+        <thead>
+            {% for header in displayOrder %}
+                <th id="header-{{header}}">
+                    {% if displayColumnHeadings == "text" %}
+                        {{header}}
+                    {% elseif displayColumnHeadings == "icons" %}
+                        <span class="header-icon-{{header}}"></span>
+                    {% endif %}
+                </th>
+            {% endfor %}
+        </thead>
+        <tbody>
+        {% for task in tasks.items %}
+            {{ displayTask(task) }}
+            {% if task.subtasks %}
+                {% for sub in task.subtasks %}
+                    {{displayTask(sub, "subtask")}}
+                {% endfor %}
+            {% endif%}
         {% endfor %}
         </tbody>
         </table>
