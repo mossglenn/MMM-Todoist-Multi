@@ -37,6 +37,7 @@ Module.register("MMM-Todoist", {
     projects: [], //include all task from these projects regardless of label
     blacklistProjects: false,
     labels: [""], //tasks with these labels will be displayed regardless of project
+    filters: [], //include tasks in these todoist filters ("Assigned to me", "Assigned to others", "Priority 1", Priority 2", "Priority 3", Priority 4" plus any user-created filters)
     updateInterval: 10 * 60 * 1000, // every 10 minutes,
     fade: true,
     fadePoint: 0.25,
@@ -84,7 +85,7 @@ Module.register("MMM-Todoist", {
     todoistEndpoint: "sync",
 
     todoistResourceType:
-      '["items", "projects", "collaborators", "user", "labels"]',
+      '["items", "projects", "collaborators", "user", "labels", "filters"]',
 
     debug: true,
 
@@ -426,7 +427,7 @@ Module.register("MMM-Todoist", {
         if (collaborator === undefined) {
           item.assignee = "---";
           item.avatarURL =
-            "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 15 15'%3E%3Ccircle cx='7.5' cy='7.5' r='7.1' style='fill: none; stroke: %23828282; stroke-width: .8px;'/%3E%3Ccircle cx='7.5' cy='5.63' r='3.08' style='fill: none; stroke: %23828282; stroke-width: .8px;'/%3E%3Cpath d='M2.33,12.36c1.02-2.86,4.16-4.35,7.01-3.34,1.56,.55,2.78,1.78,3.34,3.34' style='fill: none; stroke: %23828282; stroke-width: .8px;'/%3E%3C/svg%3E";
+            "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 15 15'%3E%3Ccircle cx='7.5' cy='7.5' r='7.1' style='fill: none; stroke: %23828282; stroke-width: .4px;'/%3E%3Ccircle cx='7.5' cy='5.63' r='3.08' style='fill: none; stroke: %23828282; stroke-width: .4px;'/%3E%3Cpath d='M2.33,12.36c1.02-2.86,4.16-4.35,7.01-3.34,1.56,.55,2.78,1.78,3.34,3.34' style='fill: none; stroke: %23828282; stroke-width: .4px;'/%3E%3C/svg%3E";
         } else {
           item.assignee = collaborator.full_name;
           if (collaborator.image_id) {
@@ -437,13 +438,16 @@ Module.register("MMM-Todoist", {
               "_small.jpg";
           } else {
             item.avatarURL =
-              "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 15 15'%3E%3Ccircle cx='7.5' cy='7.5' r='7.1' style='fill: none; stroke: %23828282; stroke-width: .8px;'/%3E%3Ccircle cx='7.5' cy='5.63' r='3.08' style='fill: none; stroke: %23828282; stroke-width: .8px;'/%3E%3Cpath d='M2.33,12.36c1.02-2.86,4.16-4.35,7.01-3.34,1.56,.55,2.78,1.78,3.34,3.34' style='fill: none; stroke: %23828282; stroke-width: .8px;'/%3E%3C/svg%3E";
+              "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 15 15'%3E%3Ccircle cx='7.5' cy='7.5' r='7.1' style='fill: none; stroke: %23828282; stroke-width: .4px;'/%3E%3Ccircle cx='7.5' cy='5.63' r='3.08' style='fill: none; stroke: %23828282; stroke-width: .4px;'/%3E%3Cpath d='M2.33,12.36c1.02-2.86,4.16-4.35,7.01-3.34,1.56,.55,2.78,1.78,3.34,3.34' style='fill: none; stroke: %23828282; stroke-width: .4px;'/%3E%3C/svg%3E";
           }
         }
       }
       //copy any subtasks into item.subtasks
       if (self.config.displaySubtasks) {
         item.subtasks = items.filter((t) => t.parent_id == item.id);
+        item.subtasks.sort(function (a, b) {
+          a.child_order - b.child_order;
+        });
       }
     });
     //filter out all subtasks (after they have been copied to parent tasks)
