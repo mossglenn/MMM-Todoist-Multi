@@ -117,6 +117,8 @@ Module.register("MMM-Todoist", {
     return "baseTemplate.njk";
   },
   getTemplateData: function () {
+    Log.info("This is config...");
+    Log.info(this.config);
     return this.config;
   },
 
@@ -444,36 +446,16 @@ Module.register("MMM-Todoist", {
       }
       //copy any subtasks into item.subtasks
       if (self.config.displaySubtasks) {
-        item.subtasks = items.filter((t) => t.parent_id == item.id);
-        item.subtasks.sort(function (a, b) {
-          a.child_order - b.child_order;
-        });
+        item.subtasks = self.sortTasks(
+          items.filter((t) => t.parent_id == item.id)
+        );
       }
     });
     //filter out all subtasks (after they have been copied to parent tasks)
     items = items.filter((item) => item.parent_id === null);
 
-    // Sorting code if you want to add new methods. //
-    switch (self.config.sortType) {
-      case "todoist":
-        sorteditems = self.sortByTodoist(items);
-        break;
-      case "priority":
-        sorteditems = self.sortByPriority(items);
-        break;
-      case "dueDateAsc":
-        sorteditems = self.sortByDueDateAsc(items);
-        break;
-      case "dueDateDesc":
-        sorteditems = self.sortByDueDateDesc(items);
-        break;
-      case "dueDateDescPriority":
-        sorteditems = self.sortByDueDateDescPriority(items);
-        break;
-      default:
-        sorteditems = self.sortByTodoist(items);
-        break;
-    }
+    //sort items
+    items = self.sortTasks(items);
 
     //Slice by max Entries
     items = items.slice(0, this.config.maximumEntries);
@@ -561,7 +543,31 @@ Module.register("MMM-Todoist", {
     });
     return itemstoSort;
   },
-
+  sortTasks: function (items) {
+    let sorteditems = [];
+    // Sorting code if you want to add new methods. //
+    switch (this.config.sortType) {
+      case "todoist":
+        sorteditems = this.sortByTodoist(items);
+        break;
+      case "priority":
+        sorteditems = this.sortByPriority(items);
+        break;
+      case "dueDateAsc":
+        sorteditems = this.sortByDueDateAsc(items);
+        break;
+      case "dueDateDesc":
+        sorteditems = this.sortByDueDateDesc(items);
+        break;
+      case "dueDateDescPriority":
+        sorteditems = this.sortByDueDateDescPriority(items);
+        break;
+      default:
+        sorteditems = this.sortByTodoist(items);
+        break;
+    }
+    return sorteditems;
+  },
   addDueDate: function (item) {
     item.isDue = "later"; //var className = "bright align-right dueDate ";
     var innerHTML = "";

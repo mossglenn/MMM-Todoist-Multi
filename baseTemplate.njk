@@ -63,7 +63,7 @@
             {{ displayTask(task) }}
             {% if task.subtasks %}
                 {% for sub in task.subtasks %}
-                    {{d isplayTask(sub, "subtask") }}
+                    {{ displayTask(sub, "subtask") }}
                 {% endfor %}
             {% endif%}
         {% endfor %}
