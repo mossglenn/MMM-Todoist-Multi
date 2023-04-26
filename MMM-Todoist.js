@@ -248,6 +248,18 @@ Module.register("MMM-Todoist", {
     }
   },
 
+  /********
+   * Multifilter will be able to
+   * 1. take project name(s) to include
+   * 2. take project name(s) to exclude
+   * 3. take label(s) to include
+   * 4. take label(s) to exclude
+   * 5. combine projects and labels with AND and NOT
+   *
+   * could have an "include" array in config that accepts projects, labels, sections, etc
+   * or could have "include" object with optional attributes called "projects", "labels", "sections", etc. that take arrays
+   */
+
   filterTodoistData: function (tasks) {
     var self = this;
     var items = [];

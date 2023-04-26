@@ -1,5 +1,6 @@
 "use strict";
 
+const { async } = require("node-ical");
 /* Magic Mirror
  * Module: MMM-Todoist
  *
@@ -14,16 +15,49 @@ const showdown = require("showdown");
 
 const markdown = new showdown.Converter();
 
+
+
 module.exports = NodeHelper.create({
   start: function () {
     console.log("Starting node helper for: " + this.name);
   },
 
   socketNotificationReceived: function (notification, payload) {
-    if (notification === "FETCH_TODOIST") {
+    //TODO: set up additional notification for creating a function to fetch different Todoist accounts
+    if (notification === "ADD_TODOIST_ACCOUNT") {
+      
+    }
+
+    elseif (notification === "FETCH_TODOIST") {
       this.config = payload;
       this.fetchTodos();
     }
+  },
+
+  fetchTodoistData: function (apiBase, apiVersion, apiEndpoint, accessCode, resourceTypes) {
+    let todoistUrl = apiBase + "/" + apiVersion + "/" + apiEndpoint + "/";
+
+    let fetchOptions = {
+      method: "POST",
+      body: JSON.stringify({
+        sync_token: "*",
+        resource_types: resourceTypes
+      }),
+      cache: "no-cache",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+        Authorization: "Bearer " + accessCode
+      }
+    }
+
+
+    let response = await fetch(todoistUrl, fetchOptions);
+
+    if (!response.ok) {
+      console.log("fetch error: " + response.status);
+    }
+    return 
+
   },
 
   fetchTodos: function () {
