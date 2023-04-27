@@ -1,6 +1,5 @@
 "use strict";
 
-const { async } = require("node-ical");
 /* Magic Mirror
  * Module: MMM-Todoist
  *
@@ -10,12 +9,8 @@ const { async } = require("node-ical");
  */
 
 const NodeHelper = require("node_helper");
-const request = require("request");
-const showdown = require("showdown");
-
-const markdown = new showdown.Converter();
-
-
+const fetch = require("node-fetch");
+const { URLSearchParams } = require("url");
 
 module.exports = NodeHelper.create({
   start: function () {
@@ -23,89 +18,52 @@ module.exports = NodeHelper.create({
   },
 
   socketNotificationReceived: function (notification, payload) {
-    //TODO: set up additional notification for creating a function to fetch different Todoist accounts
     if (notification === "ADD_TODOIST_ACCOUNT") {
-      
+      //add a function to create a function that collects tasks from a given account
     }
 
-    elseif (notification === "FETCH_TODOIST") {
-      this.config = payload;
-      this.fetchTodos();
+    if (notification === "FETCH_TODOIST") {
+      this.fetchTodoistData(
+        payload.apiBase,
+        payload.apiVersion,
+        payload.todoistEndpoint,
+        payload.accessToken,
+        payload.todoistResourceType
+      );
     }
   },
 
-  fetchTodoistData: function (apiBase, apiVersion, apiEndpoint, accessCode, resourceTypes) {
+  /* fetch the requested data from Todoist API and send to module frontend for processing */
+  fetchTodoistData: async function (
+    apiBase,
+    apiVersion,
+    apiEndpoint,
+    accessCode,
+    resourceTypes
+  ) {
     let todoistUrl = apiBase + "/" + apiVersion + "/" + apiEndpoint + "/";
+    const fetchParams = new URLSearchParams({
+      sync_token: "*",
+      resource_types: resourceTypes
+    });
 
     let fetchOptions = {
       method: "POST",
-      body: JSON.stringify({
-        sync_token: "*",
-        resource_types: resourceTypes
-      }),
+      body: fetchParams,
       cache: "no-cache",
       headers: {
         "content-type": "application/x-www-form-urlencoded",
         Authorization: "Bearer " + accessCode
       }
-    }
-
-
-    let response = await fetch(todoistUrl, fetchOptions);
-
-    if (!response.ok) {
-      console.log("fetch error: " + response.status);
-    }
-    return 
-
-  },
-
-  fetchTodos: function () {
-    var self = this;
-    //request.debug = true;
-    var acessCode = self.config.accessToken;
-    request(
-      {
-        url:
-          self.config.apiBase +
-          "/" +
-          self.config.apiVersion +
-          "/" +
-          self.config.todoistEndpoint +
-          "/",
-        method: "POST",
-        headers: {
-          "content-type": "application/x-www-form-urlencoded",
-          "cache-control": "no-cache",
-          Authorization: "Bearer " + acessCode
-        },
-        form: {
-          sync_token: "*",
-          resource_types: self.config.todoistResourceType
-        }
-      },
-      function (error, response, body) {
-        if (error) {
-          self.sendSocketNotification("FETCH_ERROR", {
-            error: error
-          });
-          return console.error(" ERROR - MMM-Todoist: " + error);
-        }
-        if (self.config.debug) {
-          console.log(body);
-        }
-        if (response.statusCode === 200) {
-          var taskJson = JSON.parse(body);
-          taskJson.items.forEach((item) => {
-            item.contentHtml = markdown.makeHtml(item.content);
-          });
-
-          taskJson.accessToken = acessCode;
-          self.sendSocketNotification("TASKS", taskJson);
-        } else {
-          console.log("Todoist api request status=" + response.statusCode);
-        }
-      }
-    );
+    };
+    //TODO: add error handling (with FETCH_ERROR)
+    //TODO: check to see if adding html to each task is important (since the synch function did, not sure why)
+    // items.forEach((item) => {item.contentHtml = markdown.makeHtml(item.content);
+    // previous sync function also added the access token to config, not sure why checking that is important
+    fetch(todoistUrl, fetchOptions)
+      .then((response) => response.json())
+      .then((json) => {
+        this.sendSocketNotification("TASKS", json);
+      });
   }
 });

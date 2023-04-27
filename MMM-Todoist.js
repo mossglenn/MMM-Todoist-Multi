@@ -158,10 +158,10 @@ Module.register("MMM-Todoist", {
 
     // keep track of user's projects list (used to build the "whitelist")
     /*     this.userList =
-      typeof this.config.projects !== "undefined"
-        ? JSON.parse(JSON.stringify(this.config.projects))
+      typeof this.config.projects !== "undefined" ? JSON.parse(JSON.stringify(this.config.projects))
         : [];
  */
+    Log.info("sending FETCH_TODOIST notification");
     this.sendSocketNotification("FETCH_TODOIST", this.config);
 
     //add ID to the setInterval function to be able to stop it later on
@@ -245,6 +245,8 @@ Module.register("MMM-Todoist", {
       this.updateDom(1000);
     } else if (notification === "FETCH_ERROR") {
       Log.error("Todoist Error. Could not fetch todos: " + payload.error);
+    } else if (notification === "FETCH_NOTICE") {
+      Log.info("Message from server: " + payload.message);
     }
   },
 
@@ -265,13 +267,15 @@ Module.register("MMM-Todoist", {
     var items = [];
     let projIds = [];
     var subtasks = [];
+    Log.info("Here is tasks to be filtered...");
+    Log.info(tasks);
 
     if (tasks == undefined) {
       return;
     }
-    if (tasks.accessToken != self.config.accessToken) {
+    /*  if (tasks.accessToken != self.config.accessToken) {
       return;
-    }
+    } */
     if (tasks.items == undefined) {
       return;
     }
