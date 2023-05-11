@@ -11,18 +11,26 @@
 const NodeHelper = require("node_helper");
 const fetch = require("node-fetch");
 const { URLSearchParams } = require("url");
+const Log = require("logger");
+const TasksFetcher = require("./tasksfetcher.js");
 
 module.exports = NodeHelper.create({
   start: function () {
     console.log("Starting node helper for: " + this.name);
+    this.fetchers = [];
   },
 
   socketNotificationReceived: function (notification, payload) {
-    if (notification === "ADD_TODOIST_ACCOUNT") {
-      //add a function to create a function that collects tasks from a given account
-    }
-
-    if (notification === "FETCH_TODOIST") {
+    if (notification === "ADD_TODOIST_FETCHER") {
+      //create a fetcher too collect Todoist tasks for a module and accessToken
+      this.createTodoistFetcher(
+        payload.url,
+        payload.reloadInterval,
+        payload.accessToken,
+        payload.resourceTypes,
+        payload.identifier
+      );
+    } /* else if (notification === "FETCH_TODOIST") {
       this.fetchTodoistData(
         payload.apiBase,
         payload.apiVersion,
@@ -30,10 +38,99 @@ module.exports = NodeHelper.create({
         payload.accessToken,
         payload.todoistResourceType
       );
+    } */
+    if (notification === "FETCH_TASKS") {
+      if (
+        typeof this.fetchers[payload.identifier + payload.accessToken] ===
+        "undefined"
+      ) {
+        Log.error(
+          "Task fetching error. No fetcher exists for module: " +
+            payload.identifier +
+            " / accessToken: " +
+            payload.accessToken
+        );
+        this.sendSocketNotification("TASK_ERROR", {
+          error_type: "TASK_FETCHER_MISSING"
+        });
+        return;
+      }
+      this.fetchers[payload.identifier + payload.accessToken].startFetch();
     }
   },
 
-  /* fetch the requested data from Todoist API and send to module frontend for processing */
+  /**
+   * Create a fetcher for a new combination of module is and Todoist Access Token
+   * Otherwise use the existing fetcher
+   *
+   * @param {string} url The url of the Todoist API to use when fetching
+   * @param {number} reloadInterval Time in ms to wait until fetching tasks again
+   * @param {string} accessToken  API token from the Todoist Web app, at Todoist Settings -> Integrations -> API token
+   * @param {string[]} resourceTypes Array of strings indicating which Todoist resource types to fetch
+   * @param {string} identifier ID of the module
+   *
+   **/
+  createTodoistFetcher: function (
+    url,
+    reloadInterval,
+    accessToken,
+    resourceTypes,
+    identifier
+  ) {
+    let fetcher;
+    if (typeof this.fetchers[identifier + accessToken] === "undefined") {
+      Log.log(
+        "Creating new taskFetcher for module: " +
+          identifier +
+          " and accessToken: " +
+          accessToken
+      );
+      fetcher = new TasksFetcher(
+        url,
+        accessToken,
+        resourceTypes,
+        reloadInterval
+      );
+
+      fetcher.onReceive((fetcher) => {
+        this.broadcastTasks(fetcher, identifier);
+      });
+
+      fetcher.onError((fetcher, error) => {
+        Log.error(
+          "Task fetcher error. Could not collect tasks: ",
+          fetcher.accessCode,
+          error
+        );
+        let error_type = NodeHelper.checkFetchError(error);
+        this.sendSocketNotification("FETCH_ERROR", {
+          id: identifier,
+          error_type
+        });
+      });
+      this.fetchers[identifier + accessToken] = fetcher;
+    } else {
+      Log.log(
+        "Using existing task fetcher for module: " +
+          identifier +
+          " with accessToken: " +
+          accessToken
+      );
+
+      fetcher = this.fetchers[identifier + accessToken];
+      fetcher.broadcastTasks();
+    }
+    fetcher.startFetch();
+  },
+
+  broadcastTasks: function (fetcher, identifier) {
+    this.sendSocketNotification("TODOIST_TASKS", {
+      id: identifier,
+      accessToken: fetcher.accessToken(),
+      tasks: fetcher.tasks()
+    });
+  }
+  /* 
   fetchTodoistData: async function (
     apiBase,
     apiVersion,
@@ -56,14 +153,29 @@ module.exports = NodeHelper.create({
         Authorization: "Bearer " + accessCode
       }
     };
-    //TODO: add error handling (with FETCH_ERROR)
+
     //TODO: check to see if adding html to each task is important (since the synch function did, not sure why)
     // items.forEach((item) => {item.contentHtml = markdown.makeHtml(item.content);
     // previous sync function also added the access token to config, not sure why checking that is important
     fetch(todoistUrl, fetchOptions)
+      .then(this.checkStatus)
       .then((response) => response.json())
       .then((json) => {
         this.sendSocketNotification("TASKS", json);
+      })
+      .catch((err) =>
+        this.sendSocketNotification("FETCH_ERROR", {
+          error: "Error fetching Todoist data: " + err
+        })
+      );
+  },
+  checkStatus: function (response) {
+    if (response.ok) {
+      return response;
+    } else {
+      this.sendSocketNotification("FETCH_ERROR", {
+        error: "ERROR! response status is '" + response.statusText + "'"
       });
-  }
+    }
+  } */
 });

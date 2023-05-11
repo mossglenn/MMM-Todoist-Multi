@@ -28,9 +28,6 @@
  * - correction of regression on commit #28 for tasks without dueDate
  * */
 
-//UserPresence Management (PIR sensor)
-var UserPresence = true; //true by default, so no impact for user without a PIR sensor
-
 Module.register("MMM-Todoist", {
   defaults: {
     maximumEntries: 10,
@@ -38,11 +35,12 @@ Module.register("MMM-Todoist", {
     blacklistProjects: false,
     labels: [""], //tasks with these labels will be displayed regardless of project
     filters: [], //include tasks in these todoist filters ("Assigned to me", "Assigned to others", "Priority 1", Priority 2", "Priority 3", Priority 4" plus any user-created filters)
-    updateInterval: 10 * 60 * 1000, // every 10 minutes,
+    reloadInterval: 10 * 60 * 1000, // every 10 minutes,
     fade: true,
     fadePoint: 0.25,
     fadeMinimumOpacity: 0.25,
     sortType: "todoist",
+    accessTokens: [],
 
     //New config from AgP42
     displayLastUpdate: false, //add or not a line after the tasks with the last server update time
@@ -51,7 +49,6 @@ Module.register("MMM-Todoist", {
     wrapEvents: true, // wrap events to multiple lines breaking at maxTitleLength
     displayTasksWithoutDue: true, // Set to false to not print tasks without a due date
     displayTasksWithinDays: -1, // If >= 0, do not print tasks with a due date more than this number of days into the future (e.g., 0 prints today and overdue)
-    // 2019-12-31 by thyed
     displaySubtasks: true, // set to false to exclude subtasks
 
     //colorMap taken from https://developer.todoist.com/guides/#colors
@@ -79,12 +76,12 @@ Module.register("MMM-Todoist", {
       { id: 49, name: "taupe", hex: "#ccac93" }
     ],
 
-    //This has been designed to use the Todoist Sync API.
+    //This has been designed to use the Todoist Sync API. https://api.todoist.com/sync/v9/sync
     apiVersion: "v9",
     apiBase: "https://todoist.com/API",
     todoistEndpoint: "sync",
 
-    todoistResourceType:
+    resourceTypes:
       '["items", "projects", "collaborators", "user", "labels", "filters"]',
 
     debug: true,
@@ -109,7 +106,8 @@ Module.register("MMM-Todoist", {
     },
     displayProjectAs: "both", //"name" excludes color border surrounding project name, "color" excludes the project name (anything else = "both" project name and project color border around name)
     displayColumnHeadings: "icons", //"text", "icons", "none" --using column text makes table significantly wider
-    tasks: false //not user adjustable, this is where the template data is stored
+    taskData: [], //not user adjustable, this is where the processed data is stored
+    tasks: {} //not user adjustable, this is where the template data is stored
   },
 
   // Define required scripts.
@@ -117,8 +115,10 @@ Module.register("MMM-Todoist", {
     return "baseTemplate.njk";
   },
   getTemplateData: function () {
-    Log.info("This is config...");
-    Log.info(this.config);
+    if (this.config.debug) {
+      Log.info("This is config...");
+      Log.info(this.config);
+    }
     return this.config;
   },
 
@@ -136,52 +136,75 @@ Module.register("MMM-Todoist", {
   start: function () {
     var self = this;
     Log.info("Starting module: " + this.name);
-
-    this.updateIntervalID = 0; // Definition of the IntervalID to be able to stop and start it again
     this.ModuleToDoIstHidden = false; // by default it is considered displayed. Note : core function "this.hidden" has strange behaviour, so not used here
 
     //to display "Loading..." at start-up
     this.title = "Loading...";
     this.loaded = false;
 
-    if (this.config.accessToken === "") {
-      Log.error("MMM-Todoist: AccessToken not set!");
+    // no access tokens were included in the module config
+    if (this.config.accessTokens.length < 1) {
+      Log.error("MMM-Todoist: Access Token not set");
       return;
     }
 
     //Support legacy properties
     if (this.config.lists !== undefined) {
-      if (this.config.lists.length > 0) {
+      if (this.config.lists.length > 0 && this.config.projects.length < 1) {
         this.config.projects = this.config.lists;
+      } else {
+        Log.info(
+          "MMM-Todoist: Configured lists may be interfering with configured projects."
+        );
       }
     }
 
-    // keep track of user's projects list (used to build the "whitelist")
-    /*     this.userList =
-      typeof this.config.projects !== "undefined" ? JSON.parse(JSON.stringify(this.config.projects))
-        : [];
- */
-    Log.info("sending FETCH_TODOIST notification");
-    this.sendSocketNotification("FETCH_TODOIST", this.config);
+    //Check for short reloadInterval (less than every 5 minutes)
+    if (this.config.reloadInterval < 5 * 60 * 1000) {
+      Log.info(
+        "MMM-Todoist: WARNING!!!! " +
+          this.identifier +
+          "has a reload interval of less than 5 minutes."
+      );
+    }
 
-    //add ID to the setInterval function to be able to stop it later on
-    this.updateIntervalID = setInterval(function () {
-      self.sendSocketNotification("FETCH_TODOIST", self.config);
-    }, this.config.updateInterval);
+    /*
+     ***** CREATE TASK FETCHERS *****
+     */
+    var fetch_url = this.buildTodoistApiUrl();
+
+    if (this.config.debug) {
+      Log.info(
+        "Sending ADD_TODOIST_FETCHER notification for " +
+          this.config.accessTokens +
+          " at " +
+          fetch_url
+      );
+    }
+    //add a fetcher for each accessToken for this module
+    this.config.accessTokens.forEach((token) => {
+      this.addTodoistAccount(
+        fetch_url,
+        this.config.reloadInterval,
+        token,
+        this.config.resourceTypes,
+        this.identifier
+      );
+    });
   },
 
   suspend: function () {
     //called by core system when the module is not displayed anymore on the screen
     this.ModuleToDoIstHidden = true;
     //Log.log("Fct suspend - ModuleHidden = " + ModuleHidden);
-    this.GestionUpdateIntervalToDoIst();
+    //this.GestionUpdateIntervalToDoIst();
   },
 
   resume: function () {
     //called by core system when the module is displayed on the screen
     this.ModuleToDoIstHidden = false;
     //Log.log("Fct resume - ModuleHidden = " + ModuleHidden);
-    this.GestionUpdateIntervalToDoIst();
+    //this.GestionUpdateIntervalToDoIst();
   },
 
   notificationReceived: function (notification, payload) {
@@ -189,46 +212,46 @@ Module.register("MMM-Todoist", {
       // notification sended by module MMM-PIR-Sensor. See its doc
       //Log.log("Fct notificationReceived USER_PRESENCE - payload = " + payload);
       UserPresence = payload;
-      this.GestionUpdateIntervalToDoIst();
-    }
-  },
-
-  GestionUpdateIntervalToDoIst: function () {
-    if (UserPresence === true && this.ModuleToDoIstHidden === false) {
-      var self = this;
-
-      // update now
-      this.sendSocketNotification("FETCH_TODOIST", this.config);
-
-      //if no IntervalID defined, we set one again. This is to avoid several setInterval simultaneously
-      if (this.updateIntervalID === 0) {
-        this.updateIntervalID = setInterval(function () {
-          self.sendSocketNotification("FETCH_TODOIST", self.config);
-        }, this.config.updateInterval);
-      }
-    } else {
-      //if (UserPresence = false OR ModuleHidden = true)
-      Log.log(
-        "Personne regarde : on stop l'update " +
-          this.name +
-          " projet : " +
-          this.config.projects
-      );
-      clearInterval(this.updateIntervalID); // stop the update interval of this module
-      this.updateIntervalID = 0; //reset the flag to be able to start another one at resume
+      //this.GestionUpdateIntervalToDoIst();
     }
   },
 
   // Override socket notification handler.
   // ******** Data sent from the Backend helper. This is the data from the Todoist API ************
   socketNotificationReceived: function (notification, payload) {
-    if (notification === "TASKS") {
-      if (this.config.debug) {
-        Log.info("Todoist Payload:");
-        Log.info(payload);
-      }
-      this.config.tasks = this.filterTodoistData(payload);
+    if (notification === "FETCH_TASKS") {
+      this.sendSocketNotification(notification, {
+        accessToken: payload.accessToken,
+        id: this.identifier
+      });
+    }
 
+    if (notification === "TODOIST_TASKS") {
+      this.debugMessage("todoist payload", payload);
+      var processedTasks = this.processTodoistData(payload);
+      this.debugMessage("Processed Tasks", processedTasks);
+      this.config.taskData[payload.accessToken] = processedTasks;
+      this.debugMessage("taskData", this.config.taskData);
+
+      /*
+       ** Merge all the tasks for this module **
+       */
+      var mergedTasks = [];
+      this.config.accessTokens.forEach((token) => {
+        if (this.config.taskData[token]) {
+          mergedTasks = mergedTasks.concat(this.config.taskData[token].items);
+        }
+      });
+
+      /*
+       ** Sort merged tasks then cut to max number of items **
+       */
+      var sortedTasks = this.sortTasks(mergedTasks);
+      this.config.tasks = sortedTasks.slice(0, this.config.maximumEntries);
+
+      /*
+       ** set last update to current time **
+       */
       if (this.config.displayLastUpdate) {
         this.lastUpdate = Date.now() / 1000; //save the timestamp of the last update to be able to display it
         Log.log(
@@ -243,9 +266,12 @@ Module.register("MMM-Todoist", {
 
       this.loaded = true;
       this.updateDom(1000);
-    } else if (notification === "FETCH_ERROR") {
-      Log.error("Todoist Error. Could not fetch todos: " + payload.error);
-    } else if (notification === "FETCH_NOTICE") {
+    }
+    if (notification === "FETCH_ERROR") {
+      Log.error("Todoist Error. Could not fetch todos...");
+      Log.error(payload);
+    }
+    if (notification === "FETCH_NOTICE") {
       Log.info("Message from server: " + payload.message);
     }
   },
@@ -262,25 +288,26 @@ Module.register("MMM-Todoist", {
    * or could have "include" object with optional attributes called "projects", "labels", "sections", etc. that take arrays
    */
 
-  filterTodoistData: function (tasks) {
+  processTodoistData: function (payload) {
     var self = this;
+    var tasks = payload.tasks;
     var items = [];
     let projIds = [];
     var subtasks = [];
-    Log.info("Here is tasks to be filtered...");
-    Log.info(tasks);
-
-    if (tasks == undefined) {
+    /*
+     ** CHECK FOR PROPERLY FORMED PAYLOAD **
+     */
+    if (payload == undefined || tasks.items == undefined) {
+      Log.warning(
+        "MMM-TODOIST: Fetched task payload may be incorrectly formed"
+      );
       return;
     }
-    /*  if (tasks.accessToken != self.config.accessToken) {
-      return;
-    } */
-    if (tasks.items == undefined) {
-      return;
-    }
+    /*
+     ** PROCESS PROJECT CONFIGURATION FOR THIS PAYLOAD **
+     */
 
-    //convert project names to ids
+    //add ids for projects added as names in config
     this.config.projects.forEach((project) => {
       let proj = tasks.projects.find(
         (p) => project == p.id || project == p.name
@@ -289,9 +316,11 @@ Module.register("MMM-Todoist", {
         projIds.push(proj.id);
       }
     });
-    this.config.projects = projIds;
+    //collect all the unique names and ids into config.projects
+    var mergedArrays = [...this.config.projects, ...projIds];
+    this.config.projects = [...new Set(mergedArrays)];
 
-    if (this.config.blacklistProjects) {
+    /*     if (this.config.blacklistProjects) {
       // take all projects in payload, and remove the ones specified by user
       // i.e., convert user's "whitelist" into a "blacklist"
       let userList = this.config.projects;
@@ -310,7 +339,11 @@ Module.register("MMM-Todoist", {
         );
         console.log(this.config.projects);
       }
-    }
+    } */
+
+    /*
+     ** FILTER TASKS ACCORDING TO DATE **
+     */
 
     //if config is set so, filter out tasks without due date or with due date too far in the future
     if (
@@ -335,7 +368,10 @@ Module.register("MMM-Todoist", {
       });
     }
 
-    //task collection and conversion according to criteria specified in the Config
+    /*
+     ** COLLECT TASKS ACCORDING TO CONFIG **
+     */
+
     tasks.items.forEach(function (item) {
       //only include subtasks if displaySubtasks is true
       if (item.parent_id != null) {
@@ -469,12 +505,6 @@ Module.register("MMM-Todoist", {
     });
     //filter out all subtasks (after they have been copied to parent tasks)
     items = items.filter((item) => item.parent_id === null);
-
-    //sort items
-    items = self.sortTasks(items);
-
-    //Slice by max Entries
-    items = items.slice(0, this.config.maximumEntries);
 
     //collate filtered and converted task information
     this.tasks = {
@@ -667,5 +697,51 @@ Module.register("MMM-Todoist", {
       innerHTML += formatTime(dueDateTime);
     }
     return innerHTML; //this.createCell(className, innerHTML);
+  },
+
+  /**
+   * Requests node helper to add Todoist account to this module.
+   *
+   * @param {string} url The calendar url to add
+   * @param {int} reloadInterval The number of ms to wait until fetching tasks from this account again
+   * @param {string} accessToken The accessToken used to access the account
+   * @param {[string]} resourceTypes The array of strings indicating which Todoist resources should be fetched
+   * @param {string} identifier This module id asking for tasks from this account
+   *
+   */
+  addTodoistAccount: function (
+    url,
+    reloadInterval,
+    accessToken,
+    resourceTypes,
+    identifier
+  ) {
+    this.sendSocketNotification("ADD_TODOIST_FETCHER", {
+      url: url,
+      accessToken: accessToken,
+      reloadInterval: reloadInterval,
+      resourceTypes: resourceTypes,
+      identifier: identifier
+    });
+  },
+
+  buildTodoistApiUrl: function () {
+    // configured for V9: All Sync API requests share the same endpoint URL: https://api.todoist.com/sync/v9/sync
+    return (
+      this.config.apiBase +
+      "/" +
+      this.config.apiVersion +
+      "/" +
+      this.config.todoistEndpoint
+    );
+  },
+  debugMessage: function (message, object) {
+    if (this.config.debug) {
+      console.log(
+        "%c\u21C3" + message + "\u21C2",
+        "background: #222; color: #ff9900"
+      );
+      console.log(object);
+    }
   }
 });

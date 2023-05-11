@@ -59,7 +59,8 @@
             {% endfor %}
         </thead>
         <tbody>
-        {% for task in tasks.items %}
+ 
+        {% for task in tasks %}
             {{ displayTask(task) }}
             {% if task.subtasks %}
                 {% for sub in task.subtasks %}
@@ -67,6 +68,7 @@
                 {% endfor %}
             {% endif%}
         {% endfor %}
+
         </tbody>
         </table>
 </div>
