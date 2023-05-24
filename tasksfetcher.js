@@ -50,15 +50,15 @@ const TasksFetcher = function (
         Authorization: "Bearer " + accessToken
       }
     };
-    console.log(url);
-    console.log(fetchOptions);
+    //console.log(url);
+    //console.log(fetchOptions);
 
     fetch(url, fetchOptions)
       .then(NodeHelper.checkFetchStatus)
       .then((response) => response.json())
       .then((json) => {
-        Log.info("received tasks on following line...");
-        Log.info(json);
+        //Log.info("received tasks on following line...");
+        //Log.info(json);
         tasks = json;
         this.broadcastTasks();
         scheduleTimer();
