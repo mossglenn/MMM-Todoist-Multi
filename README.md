@@ -4,7 +4,7 @@ This an extension for the [MagicMirror](https://github.com/MichMich/MagicMirror)
 The requests to the server will be paused is the module is not displayed (use of a carousel or hidden by Remote-Control for example) or by the use of a PIR sensor and the module MMM-PIR-Sensor. An immediate update will occurs at the return of the module display. 
 
 ## Installation
-1. Navigate into your MagicMirror's `modules` folder and execute `git clone https://github.com/cbrooker/MMM-Todoist.git`. A new folder will appear navigate into it.
+1. Navigate into your MagicMirror's `modules` folder and execute `git clone https://github.com/FutureYamask/MMM-Todoist-Multi.git`. A new folder will appear navigate into it.
 2. Execute `npm install` to install the node dependencies.
 
 ## Using the module
@@ -13,7 +13,7 @@ To use this module, add it to the modules array in the `config/config.js` file:
 ````javascript
 modules: [
 	{
-		module: 'MMM-Todoist',
+		module: 'MMM-Todoist-Multi',
 		position: 'top_right',	// This can be any of the regions. Best results in left or right regions.
 		header: 'Todoist', // This is optional
 		config: { // See 'Configuration options' for more information.
