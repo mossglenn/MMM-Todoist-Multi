@@ -1,5 +1,5 @@
 /* MagicMirror²
- * Node Helper: MMM-Todoist - TasksFetcher
+ * Node Helper: MMM-Todoist-Multi - TasksFetcher
  *
  * By Amos Glenn https://github.com/FutureYamask
  * MIT Licensed.

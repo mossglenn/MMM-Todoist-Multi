@@ -1,24 +1,24 @@
 {
-  "name": "Magic-Mirror-Module-Todoist",
+  "name": "Magic-Mirror-Module-Todoist-Multi",
   "version": "1.0.0",
-  "description": "Todoist module for the Magic Mirror.",
+  "description": "Multiple Todoist accounts module for the Magic Mirror.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/cbrooker/MMM-Todoist"
+    "url": "git+hhttps://github.com/FutureYamask/MMM-Todoist-Multi.git"
   },
   "keywords": [
     "magic mirror",
     "smart mirror",
-    "wunderlist",
+    "Todoist",
     "module"
   ],
-  "author": "Chris Brooker",
-  "contributors": "https://github.com/cbrooker/MMM-Todoist/graphs/contributors",
+  "author": "Amos Glenn",
+  "contributors": "https://github.com/FutureYamask/MMM-Todoist-Multi/graphs/contributors",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/cbrooker/MMM-Todoist/issues"
+    "url": "https://github.com/FutureYamask/MMM-Todoist-Multi/issues"
   },
-  "homepage": "https://github.com/cbrooker/MMM-Todoist#readme",
+  "homepage": "hhttps://github.com/FutureYamask/MMM-Todoist-Multi#readme",
   "dependencies": {
     "audit": "^0.0.6",
     "node-fetch": "^2.6.9",

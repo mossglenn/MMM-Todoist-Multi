@@ -1,7 +1,7 @@
 "use strict";
 
 /* Magic Mirror
- * Module: MMM-Todoist
+ * Module: MMM-Todoist-Multi
  *
  * By Chris Brooker
  *

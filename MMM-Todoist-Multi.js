@@ -1,34 +1,19 @@
 /* global Module */
 
 /* Magic Mirror
- * Module: MMM-Todoist
+ * Module: MMM-Todoist-Multi
  *
- * By Chris Brooker
+ * By Amos Glenn
  *
  * MIT Licensed.
  */
 
 /*
 
- * Update by mabahj 24/11/2019
- * - Added support for labels in addtion to projects
- * Update by AgP42 the 18/07/2018
- * Modification added :
- * - Management of a PIR sensor with the module MMM-PIR-Sensor (by PaViRo). In case PIR module detect no user,
- * the update of the ToDoIst is stopped and will be requested again at the return of the user
- * - Management of the "module.hidden" by the core system : same behaviour as "User_Presence" by the PIR sensor
- * - Add "Loading..." display when the infos are not yet loaded from the server
- * - Possibility to add the last update time from server at the end of the module.
- * This can be configured using "displayLastUpdate" and "displayLastUpdateFormat"
- * - Possibility to display long task on several lines(using the code from default module "calendar".
- * This can be configured using "wrapEvents" and "maxTitleLength"
- *
- * // Update 27/07/2018 :
- * - Correction of start-up update bug
- * - correction of regression on commit #28 for tasks without dueDate
+ * Created new module separate from MMM-Todoist 05/24/2023
  * */
 
-Module.register("MMM-Todoist", {
+Module.register("MMM-Todoist-Multi", {
   defaults: {
     maximumEntries: 10,
     projects: [], //include all task from these projects regardless of label
@@ -123,7 +108,7 @@ Module.register("MMM-Todoist", {
   },
 
   getStyles: function () {
-    return ["MMM-Todoist.css"];
+    return ["MMM-Todoist-Multi.css"];
   },
   getTranslations: function () {
     return {
@@ -144,7 +129,7 @@ Module.register("MMM-Todoist", {
 
     // no access tokens were included in the module config
     if (this.config.accessTokens.length < 1) {
-      Log.error("MMM-Todoist: Access Token not set");
+      Log.error("MMM-Todoist-Multi: Access Token not set");
       return;
     }
 
@@ -154,7 +139,7 @@ Module.register("MMM-Todoist", {
         this.config.projects = this.config.lists;
       } else {
         Log.info(
-          "MMM-Todoist: Configured lists may be interfering with configured projects."
+          "MMM-Todoist-Multi: Configured lists may be interfering with configured projects."
         );
       }
     }
@@ -162,7 +147,7 @@ Module.register("MMM-Todoist", {
     //Check for short reloadInterval (less than every 5 minutes)
     if (this.config.reloadInterval < 5 * 60 * 1000) {
       Log.info(
-        "MMM-Todoist: WARNING!!!! " +
+        "MMM-Todoist-Multi: WARNING!!!! " +
           this.identifier +
           "has a reload interval of less than 5 minutes."
       );
@@ -299,7 +284,7 @@ Module.register("MMM-Todoist", {
      */
     if (payload == undefined || tasks.items == undefined) {
       Log.warning(
-        "MMM-TODOIST: Fetched task payload may be incorrectly formed"
+        "MMM-Todoist-Multi: Fetched task payload may be incorrectly formed"
       );
       return;
     }
