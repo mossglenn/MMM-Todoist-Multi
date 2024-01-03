@@ -3,7 +3,7 @@
 /* Magic Mirror
  * Module: MMM-Todoist-Multi
  *
- * By Chris Brooker
+ * By Amos Glenn
  *
  * MIT Licensed.
  */
