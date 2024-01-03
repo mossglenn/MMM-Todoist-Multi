@@ -53,6 +53,15 @@ The following properties can be configured:
 				<br><b>Note:</b> It is possible to use the "Test token" and so not to follow the steps of oAuth token. For the web site value requested, you can use "http://example.com" if you don't have a website. 
 			</td>
 		</tr>
+		<tr>
+			<td><code>debug</code></td>
+			<td>Add helpful logging and information to the consol.<br>
+				<br><b>Possible values:</b> <code>boolean</code>
+				<br><b>Default value:</b> <code>false</code>
+				<br><b>Example:</b> <code>true</code> will display your project names and IDs in the browser's console as well as useful logging to help with debugging problems.
+				<br>This setting does not change the display of tasks.
+			</td>
+		</tr>
 		<!-- <tr>
 			<td><code>blacklistProjects</code></td>
 			<td>
@@ -81,7 +90,7 @@ The following properties can be configured:
 				2) Click on a Project in the left menu<br>
 				3) Your browser URL will change to something like<br> <code>"https://todoist.com/app?lang=en&v=818#project%2F166564897"</code><br><br>
 				Everything after %2F is the Project ID. In this case "166564897"<br><br>
-				<hr />
+				<br>Using debug<br>
 				Alternatively, if you add <b>debug=true</b> in your config.js the Projects and ProjectsIDs will be displayed on MagicMirror as well as in the Browser console.<br><br>
 				<b>The values for projects, labels, and filters are inclusive--a task needs to match one or more of these values to be displayed.  
 			</td>
