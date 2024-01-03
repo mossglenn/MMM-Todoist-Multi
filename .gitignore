@@ -34,3 +34,6 @@ node_modules
 
 # Tarballs
 *.tgz
+
+#OSX directory settings files
+.DS_Store
