@@ -68,7 +68,7 @@ _Note:_ This setting does not change the display of tasks.
 Array of projects to include in the display. Projects can be included by name or ID. Including a project will include all items in that project regardless of label or filter.
 
 -   **Possible values:** `[integer or string]`
--   **Default value:** `[ ]`
+-   **Default value:** `[ ]``
 -   **Example:** `projects: [166564794, 'Project'],`
 
 _Note:_ The values for `projects`, `labels`, and `filters` are inclusive--any task matching one or more of these values will be displayed.
@@ -139,9 +139,9 @@ Set custom colors to associate with each priority from lowest to highest.
 -   **Possible values:** `priority: hexcode`
 -   **Default value:** `priorityColors: {1: '#333333', 2: '#246fe0', 3: '#eb8909', 4: '#d1453b'}`
 
-_Note:_ 1 is the LOWEST priority; 4 is the HIGHEST or most urgent priority
+_Note:_ 1 is the LOWEST priority and 4 is the HIGHEST or most urgent priority
 
-> [!WARNING]
+> [!WARNINGING]
 > If you include this setting, you **must include all four priorities** within the brackets!
 
 ---
