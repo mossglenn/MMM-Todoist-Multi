@@ -49,7 +49,7 @@ An array of API Tokens for all accounts to look for tasks.
 
 ---
 
-### `debug`
+### :level_slider: `debug`
 
 Add helpful logging and project information to the console.
 
