@@ -70,9 +70,9 @@ The following properties can be configured:
 				<br><b>Default value:</b> <code>[ ]</code>
 				<br><b>Example:</b> <code>[166564794, "Project"]</code>
 				<br>
-				*The values for <code>projects</code>, <code>labels</code>, and <code>filters</code> are inclusive--any task matching one or more of these values will be displayed.*
-				
-				See <code>debug</code> for finding project IDs in the console.
+				<b>The values for <code>projects</code>, <code>labels</code>, and <code>filters</code> are inclusive--any task matching one or more of these values will be displayed.</b> 
+					<br><br>
+				<br>See <code>debug</code> for finding project IDs in the console.
 				<br>
 				<b>You can also get project IDs using the Todoist website:</b><br>
 				1) Go to Todoist (Log in if you aren't)<br>
