@@ -36,6 +36,8 @@ modules: [
 
 **The following options can be included in your configuration file.**
 
+---
+
 ### :jigsaw: `accessTokens`
 
 An array of API Tokens for all accounts to look for tasks.
@@ -49,7 +51,7 @@ An array of API Tokens for all accounts to look for tasks.
 
 ---
 
-### :level_slider: `debug`
+### :jigsaw: `debug`
 
 Add helpful logging and project information to the console.
 
@@ -61,7 +63,7 @@ _Note:_ This setting does not change the display of tasks.
 
 ---
 
-### `projects`
+### :jigsaw: `projects`
 
 Array of projects to include in the display. Projects can be included by name or ID. Including a project will include all items in that project regardless of label or filter.
 
@@ -82,7 +84,7 @@ _See also:_ `debug` for finding project IDs in the console.
 
 ---
 
-### `labels`
+### :jigsaw: `labels`
 
 Array of label names you want to include in the display.
 
@@ -94,7 +96,7 @@ _Note:_ The values for `projects`, `labels`, and `filters` are inclusive--any ta
 
 ---
 
-### `filters`
+### :jigsaw: `filters`
 
 Array of filers to include in the display. Including a filter will include all items in that filter.
 
@@ -109,7 +111,7 @@ _Note:_ The values for `projects`, `labels`, and `filters` are inclusive--any ta
 
 ---
 
-### `displayOrder`
+### :jigsaw: `displayOrder`
 
 Array of columns to display for each task. Columns appear in whatever order set here.
 
@@ -127,7 +129,7 @@ Array of columns to display for each task. Columns appear in whatever order set 
 
 ---
 
-### `priorityColors`
+### :jigsaw: `priorityColors`
 
 Set custom colors to associate with each priority from lowest to highest.
 
@@ -141,7 +143,7 @@ _Note:_ 1 is the LOWEST priority and 4 is the HIGHEST or most urgent priority
 
 ---
 
-### `displayProjectAs`
+### :jigsaw: `displayProjectAs`
 
 Method to indicate project for each task.
 
@@ -155,7 +157,7 @@ _Note:_ This setting has no effect if the `project` column is not included in th
 
 ---
 
-### `displayColumnHeadings`
+### :jigsaw: `displayColumnHeadings`
 
 Method to indicate the header of each column displayed
 
@@ -163,7 +165,7 @@ Method to indicate the header of each column displayed
 
 ---
 
-### `maximumEntries`
+### :jigsaw: `maximumEntries`
 
 Maximum number of tasks to be shown.
 
@@ -173,7 +175,7 @@ Maximum number of tasks to be shown.
 
 ---
 
-### `interval`
+### :jigsaw: `interval`
 
 How often the module should load new todos.
 
@@ -185,7 +187,7 @@ _Note:_ Be careful, this is in ms, NOT seconds! So, too low a number will lock y
 
 ---
 
-### `fade`
+### :jigsaw: `fade`
 
 Fade todos to black. (Gradient)
 
@@ -195,7 +197,7 @@ Fade todos to black. (Gradient)
 
 ---
 
-### `fadePoint`
+### :jigsaw: `fadePoint`
 
 How far down the list does fading start
 
@@ -205,7 +207,7 @@ How far down the list does fading start
 
 ---
 
-### `fadeMinimumOpacity`
+### :jigsaw: `fadeMinimumOpacity`
 
 Opacity of the last item if fade is enabled.
 
@@ -215,7 +217,7 @@ Opacity of the last item if fade is enabled.
 
 ---
 
-### `sortType`
+### :jigsaw: `sortType`
 
 This will determine the sorting method used when displaying your tasks.
 
@@ -230,7 +232,7 @@ This will determine the sorting method used when displaying your tasks.
 
 ---
 
-### `maxTitleLength`
+### :jigsaw: `maxTitleLength`
 
 Maximum number of characters to display on the same line in one column
 
@@ -240,7 +242,7 @@ Maximum number of characters to display on the same line in one column
 
 ---
 
-### `displayTasksWithinDays`
+### :jigsaw: `displayTasksWithinDays`
 
 Only display tasks with a due date within set number of days or are past due.
 
@@ -254,7 +256,7 @@ _Note:_ This will not affect the display of tasks without a due date.
 
 ---
 
-### `displayTasksWithoutDue`
+### :jigsaw: `displayTasksWithoutDue`
 
 Controls if tasks without a due date are displayed.
 
@@ -264,7 +266,7 @@ Controls if tasks without a due date are displayed.
 
 ---
 
-### `displaySubtasks`
+### :jigsaw: `displaySubtasks`
 
 Controls if subtasks are displayed or not.
 
@@ -274,7 +276,7 @@ Controls if subtasks are displayed or not.
 
 ---
 
-### `hideWhenEmpty`
+### :jigsaw: `hideWhenEmpty`
 
 Hide widget (including header) when no tasks meet criteria for display
 
