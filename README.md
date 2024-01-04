@@ -68,7 +68,7 @@ _Note:_ This setting does not change the display of tasks.
 Array of projects to include in the display. Projects can be included by name or ID. Including a project will include all items in that project regardless of label or filter.
 
 -   **Possible values:** `[integer or string]`
--   **Default value:** `[ ]`
+-   **Default value:** `[ ]``
 -   **Example:** `projects: [166564794, 'Project'],`
 
 
@@ -93,7 +93,6 @@ Array of label names you want to include in the display.
 -   **Default value:** `[ ]`
 -   **Example:** `labels: ['MagicMirror', 'Important', 'DoInTheMorning'],` will display all tasks from all projects that have one or more of these labels
 
-
 _Note:_ The values for `projects`, `labels`, and `filters` are inclusive--any task matching one or more of these values will be displayed.
 
 ---
@@ -102,7 +101,6 @@ _Note:_ The values for `projects`, `labels`, and `filters` are inclusive--any ta
 
 > [!CAUTION]
 > This setting does not work as expected in all cases.
-
 
 Array of filers to include in the display. Including a filter will include all items in that filter.
 
@@ -144,8 +142,7 @@ Set custom colors to associate with each priority from lowest to highest.
 
 _Note:_ 1 is the LOWEST priority; 4 is the HIGHEST or most urgent priority
 
-
-> [!WARNING]
+> [!WARNINGING]
 > If you include this setting, you **must include all four priorities** within the brackets!
 
 ---
@@ -160,7 +157,6 @@ Method to indicate project for each task.
     -   `both` - displays the name of the project surrounded by a border in the project color
 -   **Default value:** `displayProjectAs: 'both',`
 
-
 _Note:_ This setting has no effect if the `project` column is not included in the `displayOrder` setting.
 
 ---
@@ -170,9 +166,9 @@ _Note:_ This setting has no effect if the `project` column is not included in th
 Method to indicate the header of each column displayed
 
 -   **Possible values:**
-    - `text` - displays the name column
-    - `icons` - displays an icon representing the information in the column
-    - `none` - excludes any headers from displaying
+    -   `text` - displays the name column
+    -   `icons` - displays an icon representing the information in the column
+    -   `none` - excludes any headers from displaying
 -   **Default value:** `displayColumnHeadings: 'icons'`
 
 
@@ -210,7 +206,6 @@ Fade todos to black. (Gradient)
 -   **Default value:** `true`
 -   **Default value:** `fade: false,`
 
-
 ---
 
 ### :jigsaw: `fadePoint`
@@ -220,7 +215,6 @@ How far down the list does fading start
 -   **Possible values:** `0`-`1` (top - bottom)
 -   **Default value:** `0.25`
 -   **Example:** `fadePoint: 0.50,` will begin fading tasks halfway through the list
-
 
 ---
 
@@ -246,7 +240,6 @@ This will determine the sorting method used when displaying your tasks.
     -   `'dueDateDescPriority'` - Sort based on the Due Date of the Todo Descending and by priority high to low.
 -   **Default value:** `'todoist'`
 -   **Example:** `sortType: 'dueDateDesc',`
-
 
 ---
 
@@ -280,7 +273,6 @@ Controls if tasks without a due date are displayed.
 -   **Default value:** `true`
 -   **Example:** `displayTasksWithoutDue: false,` will display only tasks with due dates
 
-
 ---
 
 ### :jigsaw: `displaySubtasks`
@@ -290,7 +282,6 @@ Controls if subtasks are displayed or not.
 -   **Possible values:** `boolean`
 -   **Default value:** `true`
 -   **Example:** `displaySubtasks: false,` will not display any subtasks under included tasks
-
 
 ---
 
@@ -302,6 +293,7 @@ Hide widget (including header) when no tasks meet criteria for display
 -   **Default value:** `false`
 -   **Example:** `hideWhenEmpty: true,` will cause the entire module to disappear if no tasks would be displayed
 
+-----
 
 ## Example Module Config
 
