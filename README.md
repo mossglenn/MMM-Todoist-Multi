@@ -36,7 +36,7 @@ modules: [
 
 **The following options can be included in your configuration file.**
 
-### `accessTokens`
+### :jigsaw: `accessTokens`
 
 An array of API Tokens for all accounts to look for tasks.
 
