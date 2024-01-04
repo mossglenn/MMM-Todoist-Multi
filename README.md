@@ -138,7 +138,7 @@ Set custom colors to associate with each priority from lowest to highest.
 
 _Note:_ 1 is the LOWEST priority and 4 is the HIGHEST or most urgent priority
 
-> [!WARN]
+> [!WARNING]
 > If you include this setting, you **must include all four priorities** within the brackets!
 
 ---
