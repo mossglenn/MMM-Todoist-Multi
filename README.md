@@ -67,9 +67,9 @@ _Note:_ This setting does not change the display of tasks.
 
 Array of projects to include in the display. Projects can be included by name or ID. Including a project will include all items in that project regardless of label or filter.
 
--   **Possible values:**`[integer or string]`
--   **Default value:**`[ ]
--   **Example:**`projects: [166564794, 'Project'],`
+-   **Possible values:** `[integer or string]`
+-   **Default value:** `[ ]`
+-   **Example:** `projects: [166564794, 'Project'],`
 
 _Note:_ The values for `projects`, `labels`, and `filters` are inclusive--any task matching one or more of these values will be displayed.
 
@@ -88,15 +88,18 @@ _See also:_ `debug` for finding project IDs in the console.
 
 Array of label names you want to include in the display.
 
--   **Possible values:**` [string]`
--   **Default value:**`[ ]`
--   **Example:**`labels: ['MagicMirror', 'Important', 'DoInTheMorning'],` will display all tasks from all projects that have one or more of these labels
+-   **Possible values:** ` [string]`
+-   **Default value:** `[ ]`
+-   **Example:** `labels: ['MagicMirror', 'Important', 'DoInTheMorning'],` will display all tasks from all projects that have one or more of these labels
 
 _Note:_ The values for `projects`, `labels`, and `filters` are inclusive--any task matching one or more of these values will be displayed.
 
 ---
 
 ### :jigsaw: `filters`
+
+> [!CAUTION]
+> This setting does not work as expected in all cases.
 
 Array of filers to include in the display. Including a filter will include all items in that filter.
 
@@ -133,12 +136,12 @@ Array of columns to display for each task. Columns appear in whatever order set 
 
 Set custom colors to associate with each priority from lowest to highest.
 
--   **Possible values:**`priority: hexcode`
--   **Default value:**`priorityColors: {1: '#333333', 2: '#246fe0', 3: '#eb8909', 4: '#d1453b'}`
+-   **Possible values:** `priority: hexcode`
+-   **Default value:** `priorityColors: {1: '#333333', 2: '#246fe0', 3: '#eb8909', 4: '#d1453b'}`
 
-_Note:_ 1 is the LOWEST priority and 4 is the HIGHEST or most urgent priority
+_Note:_ 1 is the LOWEST priority; 4 is the HIGHEST or most urgent priority
 
-> [!WARN]
+> [!WARNING]
 > If you include this setting, you **must include all four priorities** within the brackets!
 
 ---
@@ -151,7 +154,7 @@ Method to indicate project for each task.
     -   `name` - displays the name of the project only
     -   `color` - displays the color of the project only
     -   `both` - displays the name of the project surrounded by a border in the project color
--   **Default value:**`displayProjectAs: 'both',`
+-   **Default value:** `displayProjectAs: 'both',`
 
 _Note:_ This setting has no effect if the `project` column is not included in the `displayOrder` setting.
 
@@ -161,7 +164,11 @@ _Note:_ This setting has no effect if the `project` column is not included in th
 
 Method to indicate the header of each column displayed
 
--   **Possible values:** + `text` - displays the name column + `icons` - displays an icon representing the information in the column + `none` - excludes any headers from displaying +**Default value:**`displayColumnHeadings: 'icons'`
+-   **Possible values:**
+    - `text` - displays the name column
+    - `icons` - displays an icon representing the information in the column
+    - `none` - excludes any headers from displaying
+-   **Default value:** `displayColumnHeadings: 'icons'`
 
 ---
 
@@ -169,9 +176,9 @@ Method to indicate the header of each column displayed
 
 Maximum number of tasks to be shown.
 
--   **Possible values:**`int`
--   **Default value:**`10`
--   **Example:**`maximumEntries: 30,`
+-   **Possible values:** `int`
+-   **Default value:** `10`
+-   **Example:** `maximumEntries: 30,`
 
 ---
 
@@ -179,11 +186,12 @@ Maximum number of tasks to be shown.
 
 How often the module should load new todos.
 
--   **Possible values:**`int` in `milliseconds`
--   **Default value:**`10*60*1000`
--   **Default value:**`interval: 30*60*1000,` will check for task updates every 30 minutes
+-   **Possible values:** `int` in `milliseconds`
+-   **Default value:** `10*60*1000`
+-   **Example:** `interval: 30*60*1000,` will check for task updates every 30 minutes
 
-_Note:_ Be careful, this is in ms, NOT seconds! So, too low a number will lock you out for repeated server attempts!
+> [!IMPORTANT]
+> Be careful, this is in ms, NOT seconds! So, too low a number will lock you out for repeated server attempts!
 
 ---
 
@@ -191,9 +199,9 @@ _Note:_ Be careful, this is in ms, NOT seconds! So, too low a number will lock y
 
 Fade todos to black. (Gradient)
 
--   **Possible values:**`true` or `false`
--   **Default value:**`true`
--   **Default value:**`fade: false,`
+-   **Possible values:** `true` or `false`
+-   **Default value:** `true`
+-   **Default value:** `fade: false,`
 
 ---
 
@@ -201,9 +209,9 @@ Fade todos to black. (Gradient)
 
 How far down the list does fading start
 
--   **Possible values:**`0`-`1` (top - bottom)
--   **Default value:**`0.25`
--   **Default value:**`fadePoint: 0.50,` will begin fading tasks half way through the list
+-   **Possible values:** `0`-`1` (top - bottom)
+-   **Default value:** `0.25`
+-   **Example:** `fadePoint: 0.50,` will begin fading tasks halfway through the list
 
 ---
 
@@ -228,7 +236,7 @@ This will determine the sorting method used when displaying your tasks.
     -   `'dueDateDesc'` - Sort based on the Due Date of the Todo Descending. (Newest date first)
     -   `'dueDateDescPriority'` - Sort based on the Due Date of the Todo Descending and by priority high to low.
 -   **Default value:** `'todoist'`
--   **Example:**` sortType: 'dueDateDesc',`
+-   **Example:** `sortType: 'dueDateDesc',`
 
 ---
 
@@ -246,8 +254,6 @@ Maximum number of characters to display on the same line in one column
 
 Only display tasks with a due date within set number of days or are past due.
 
-`displayTasksWithinDays` days. For instance, setting this to 0 will only show tasks due today or overdue. , `displayTasksWithoutDue` controls those.
-
 -   **Possible values:** `-1` - `∞`
 -   **Default value:** `-1` (display all tasks)
 -   **Example:** `0` will only display tasks that are due today or are past due
@@ -260,9 +266,9 @@ _Note:_ This will not affect the display of tasks without a due date.
 
 Controls if tasks without a due date are displayed.
 
--   **Possible values:**`boolean`
--   **Default value:**`true`
--   **Example:**`displayTasksWithoutDue: false,` will display only tasks with due dates
+-   **Possible values:** `boolean`
+-   **Default value:** `true`
+-   **Example:** `displayTasksWithoutDue: false,` will display only tasks with due dates
 
 ---
 
@@ -270,9 +276,9 @@ Controls if tasks without a due date are displayed.
 
 Controls if subtasks are displayed or not.
 
--   **Possible values:**`boolean`
--   **Default value:**`true`
--   **Example:**`displaySubtasks: false,` will not display any subtasks under included tasks
+-   **Possible values:** `boolean`
+-   **Default value:** `true`
+-   **Example:** `displaySubtasks: false,` will not display any subtasks under included tasks
 
 ---
 
@@ -280,9 +286,9 @@ Controls if subtasks are displayed or not.
 
 Hide widget (including header) when no tasks meet criteria for display
 
--   **Possible values:**`boolean`
--   **Default value:**`false`
--   **Example:**`hideWhenEmpty: true,` will cause the entire module to disappear if no tasks would be displayed
+-   **Possible values:** `boolean`
+-   **Default value:** `false`
+-   **Example:** `hideWhenEmpty: true,` will cause the entire module to disappear if no tasks would be displayed
 
 ## Example Module Config
 
