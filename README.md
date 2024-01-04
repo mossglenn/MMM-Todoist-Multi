@@ -71,6 +71,7 @@ Array of projects to include in the display. Projects can be included by name or
 -   **Default value:** `[ ]``
 -   **Example:** `projects: [166564794, 'Project'],`
 
+
 _Note:_ The values for `projects`, `labels`, and `filters` are inclusive--any task matching one or more of these values will be displayed.
 
 _See also:_ `debug` for finding project IDs in the console.
@@ -139,7 +140,7 @@ Set custom colors to associate with each priority from lowest to highest.
 -   **Possible values:** `priority: hexcode`
 -   **Default value:** `priorityColors: {1: '#333333', 2: '#246fe0', 3: '#eb8909', 4: '#d1453b'}`
 
-_Note:_ 1 is the LOWEST priority and 4 is the HIGHEST or most urgent priority
+_Note:_ 1 is the LOWEST priority; 4 is the HIGHEST or most urgent priority
 
 > [!WARNINGING]
 > If you include this setting, you **must include all four priorities** within the brackets!
@@ -170,6 +171,7 @@ Method to indicate the header of each column displayed
     -   `none` - excludes any headers from displaying
 -   **Default value:** `displayColumnHeadings: 'icons'`
 
+
 ---
 
 ### :jigsaw: `maximumEntries`
@@ -194,6 +196,7 @@ How often the module should load new todos.
 > Be careful, this is in ms, NOT seconds! So, too low a number will lock you out for repeated server attempts!
 
 ---
+
 
 ### :jigsaw: `fade`
 
@@ -289,6 +292,8 @@ Hide widget (including header) when no tasks meet criteria for display
 -   **Possible values:** `boolean`
 -   **Default value:** `false`
 -   **Example:** `hideWhenEmpty: true,` will cause the entire module to disappear if no tasks would be displayed
+
+-----
 
 ## Example Module Config
 
