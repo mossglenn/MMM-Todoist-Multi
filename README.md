@@ -161,7 +161,10 @@ _Note:_ This setting has no effect if the `project` column is not included in th
 
 Method to indicate the header of each column displayed
 
--   **Possible values:** + `text` - displays the name column + `icons` - displays an icon representing the information in the column + `none` - excludes any headers from displaying +**Default value:**`displayColumnHeadings: 'icons'`
+-   **Possible values:**
+-       `text` - displays the name column
+-       `icons` - displays an icon representing the information in the column
+-       `none` - excludes any headers from displaying +**Default value:**`displayColumnHeadings: 'icons'`
 
 ---
 
