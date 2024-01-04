@@ -1,278 +1,327 @@
-
 # MMM-Todoist-Multi
+
 This an extension for the [MagicMirror](https://github.com/MichMich/MagicMirror). It can display Todoist tasks from multiple accounts in a single list and filter them several ways.
- 
+
+> [!CAUTION]
+> This module should still be considered beta. Not everything has been fully tested and more advanced features may not work for you. Pull requests are welcome!
 
 ## Installation
+
 1. Navigate into your MagicMirror's `modules` folder and execute `git clone https://github.com/FutureYamask/MMM-Todoist-Multi.git`. A new folder will appear navigate into it.
 2. Execute `npm install` to install the node dependencies.
 
 ## Using the module
 
-To use this module, add it to the modules array in the `config/config.js` file:
-````javascript
+To use this module, add it to the modules array in the `config/config.js` file. The following is a short example of a basic configuration.
+
+```javascript
 modules: [
-	{
-		module: 'MMM-Todoist-Multi',
-		position: 'top_right',	// This can be any of the regions. Best results in left or right regions.
-		header: 'Todoist', // This is optional
-		config: { // See 'Configuration options' for more information.
-			hideWhenEmpty: false,
-			accessToken: 'accessToken from Todoist',
-			maximumEntries: 60,
-			updateInterval: 10*60*1000, // Update every 10 minutes
-			fade: false,      
-			// projects and/or labels is mandatory:
-			projects: [ 166564794 ], 
-			labels: [ "MagicMirror", "Important" ] // Tasks for any projects with these labels will be shown.
-      }
-	}
+    {
+        module: 'MMM-Todoist-Multi',
+        position: 'top_right', // This can be any of the regions
+        header: 'Task List', // This is optional
+        config: {
+            accessToken: 'accessToken-from-Todoist', //required
+            projects: [166564794],
+            labels: ['MagicMirror', 'Important'],
+            filters: ['Assigned to me'], //at least one project, label, or filter is required
+            displayOrder: ['countdown', 'content', 'project'], //at least one display column is required
+            debug: true, //set debug to true for helpful information in the console
+        },
+    },
 ]
-````
+```
 
 ## Configuration options
 
-The following properties can be configured:
+**The following options can be included in your configuration file.**
 
+---
 
-<table width="100%">
-	<!-- why, markdown... -->
-	<thead>
-		<tr>
-			<th>Option</th>
-			<th width="100%">Description</th>
-		</tr>
-	<thead>
-	<tbody>
-		<tr>
-			<td><code>accessToken</code></td>
-			<td>Your Todoist access token, you can get it <a href="https://developer.todoist.com/appconsole.html">here</a>.<br>
-				<br><b>Possible values:</b> <code>string</code>
-				<br><b>Default value:</b> <code>none</code>
-				<br><b>Note:</b> It is possible to use the "Test token" and so not to follow the steps of oAuth token. For the web site value requested, you can use "http://example.com" if you don't have a website. 
-			</td>
-		</tr>
-		<tr>
-			<td><code>blacklistProjects</code></td>
-			<td>
-				When this option is enabled, <code>projects</code> becomes a <i>blacklist.</i>
-				Any project that is <b>not</b> in <code>projects</code> will be used.<br>
-				<br><b>Possible values:</b> <code>boolean</code>
-				<br><b>Default value:</b> <code>false</code>
-				<br><b>Example:</b> <code>true</code>
-				<br>
-				<br>
-				NB: If used in combination with <code>labels</code>, tasks that are in a blacklisted
-				project but match a label will still be shown!
-			</td>
-		</tr>
-		<tr>
-			<td><code>projects</code></td>
-			<td>
-				Array of ProjectIDs you want to display. <br>
-				<br><b>Possible values:</b> <code>array</code>
-				<br><b>Default value:</b> <code>[ ]</code>
-				<br><b>Example:</b> <code>[166564794, 166564792]</code>
-				<br>
-				<br>
-				<b>Getting the Todoist ProjectID:</b><br>
-				1) Go to Todoist (Log in if you aren't)<br>
-				2) Click on a Project in the left menu<br>
-				3) Your browser URL will change to something like<br> <code>"https://todoist.com/app?lang=en&v=818#project%2F166564897"</code><br><br>
-				Everything after %2F is the Project ID. In this case "166564897"<br><br>
-				<hr />
-				Alternatively, if you add <b>debug=true</b> in your config.js the Projects and ProjectsIDs will be displayed on MagicMirror as well as in the Browser console.<br><br>
-				<b>This value and/or the labels entry must be specified</b>. If both projects and labels are specified, then tasks from both will be shown.
-			</td>
-		</tr>
-			<tr>
-			<td><code>labels</code></td>
-			<td>
-				Array of label names you want to display. <br>
-				<br><b>Possible values:</b> <code>array</code>
-				<br><b>Default value:</b> <code>[ ]</code>
-				<br><b>Example:</b> <code>["MagicMirror", "Important", "DoInTheMorning"]</code>
-				<br>
-				<br>
-				<b>This value and/or the projects entry must be specified</b>. If both projects and labels are specified, then tasks from both will be shown.
-			</td>
-		</tr>
-		<tr>
-			<td><code>maximumEntries</code></td>
-			<td>Maximum number of todos to be shown.<br>
-				<br><b>Possible values:</b> <code>int</code>
-				<br><b>Default value:</b> <code>10</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>interval</code></td>
-			<td>How often the module should load new todos. Be careful, this is in ms, NOT seconds! So, too low a number will lock you out for repeated server attempts!<br>
-				<br><b>Possible values:</b> <code>int</code> in <code>milliseconds</code>
-				<br><b>Default value:</b> <code>10*60*1000</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>fade</code></td>
-			<td>Fade todos to black. (Gradient)<br>
-				<br><b>Possible values:</b> <code>true</code> or <code>false</code>
-				<br><b>Default value:</b> <code>true</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>fadePoint</code></td>
-			<td>Where to start fade?<br>
-				<br><b>Possible values:</b> <code>0</code> (top of the list) - <code>1</code> (bottom of list)
-				<br><b>Default value:</b> <code>0.25</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>fadeMinimumOpacity</code></td>
-			<td>Opacity of the last item if fade is enabled.<br>
-				<br><b>Possible values:</b> <code>0</code> (last item is completely transparent) - <code>1</code> (no fade)
-				<br><b>Default value:</b> <code>0.25</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>showProject</code></td>
-			<td>If true this will display the Project to the right of the DueDates as it does on Todost.<br>
-				<br><b>Possible values:</b> <code>boolean</code>
-				<br><b>Default value:</b> <code>true</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>sortType</code></td>
-			<td>This will determine the sorting method used when displaying your Todos.<br>
-				<br><b>Possible values:</b> <br />
-				<code>"todoist"</code> <span>- Sort based on the order in Todoist.</span> </br >
-				<code>"priority"</code> <span>- Sort based on the priority, in Descending order. (Highest priority first)</span> </br >
-				<code>"dueDateAsc"</code> <span>- Sort based on the Due Date of the Todo Ascending. (Oldest date first)</span> </br>
-				<code>"dueDateDesc"</code> <span>- Sort based on the Due Date of the Todo Descending. (Newest date first)</span></br>
-				<code>"dueDateDescPriority"</code> <span>- Sort based on the Due Date of the Todo Descending and by priority high to low.</span></br>
-				<br><b>Default value:</b> <code>"todoist"</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>displayLastUpdate</code></td>
-			<td>If true this will display the last update time at the end of the task list. See screenshot below<br>
-				<br><b>Possible values:</b> <code>boolean</code>
-				<br><b>Default value:</b> <code>false</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>displayLastUpdateFormat</code></td>
-			<td>Format to use for the time display if displayLastUpdate:true <br>
-				<br><b>Possible values:</b> See [Moment.js formats](http://momentjs.com/docs/#/parsing/string-format/)
-				<br><b>Default value:</b> <code>'dd - HH:mm:ss'</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>wrapEvents</code></td>
-			<td>If true this will display the long tasks on several lines, according on the value <code>maxTitleLength</code>. See screenshot below. <br>
-				<br><b>Possible values:</b> <code>boolean</code>
-				<br><b>Default value:</b> <code>false</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>maxTitleLength</code></td>
-			<td>Value cut the display of long tasks on several lines. See screenshot below<br>
-				<br><b>Possible values:</b> <code>10</code> - <code>50</code>
-				<br><b>Default value:</b> <code>25</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>displayTasksWithinDays</code></td>
-			<td>If non-negative, only display tasks with a due date within <code>displayTasksWithinDays</code> days. For instance, setting this to 0 will only show tasks due today or overdue. This will not affect tasks without a due date, <code>displayTasksWithoutDue</code> controls those.<br>
-				<br><b>Possible values:</b> <code>-1</code> - <code>∞</code>
-				<br><b>Default value:</b> <code>-1</code> (filtering disabled)
-			</td>
-		</tr>
-		<tr>
-			<td><code>displayTasksWithoutDue</code></td>
-			<td>Controls if tasks without a due date are displayed.<br>
-				<br><b>Possible values:</b> <code>boolean</code>
-				<br><b>Default value:</b> <code>true</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>displaySubtasks</code></td>
-			<td>Controls if subtasks are displayed or not.<br>
-				<br><b>Possible values:</b> <code>boolean</code>
-				<br><b>Default value:</b> <code>true</code>
-			</td>
-		</tr>
-		<tr>
-			<td><code>displayAvatar</code></td>
-			<td>Display avatar images of collaborators assigned to tasks in shared projects.<br>
-				<br><b>Possible values:</b> <code>boolean</code>
-				<br><b>Default value:</b> <code>false</code>
-			</td>
-		</tr>		
-		<tr>
-			<td><code>hideWhenEmpty</code></td>
-			<td>Hide widget when all lists are empty (including header).<br>
-				<br><b>Possible values:</b> <code>boolean</code>
-				<br><b>Default value:</b> <code>false</code>
-			</td>
-		</tr>
-		
-	</tbody>
-</table>
+### :jigsaw: `accessTokens`
+
+An array of API Tokens for all accounts to look for tasks.
+
+-   **Possible values:** `string`
+-   **Default value:** none
+-   **Example:** `accessToken: ['accessToken-from-Todoist'],`
+
+> [!TIP]
+> You can use the "API Token" found at [todoist Developer](https://app.todoist.com/app/settings/integrations/developer) in this setting.
+
+---
+
+### :jigsaw: `debug`
+
+Add helpful logging and project information to the console.
+
+-   **Possible values:** `boolean`
+-   **Default value:** `false`
+-   **Example:** `debug: true,` will display your project names and IDs in the browser's console as well as useful logging to [help with debugging](https://docs.magicmirror.builders/getting-started/installation.html#usage) problems.
+
+_Note:_ This setting does not change the display of tasks.
+
+---
+
+### :jigsaw: `projects`
+
+Array of projects to include in the display. Projects can be included by name or ID. Including a project will include all items in that project regardless of label or filter.
+
+-   **Possible values:**`[integer or string]`
+-   **Default value:**`[ ]
+-   **Example:**`projects: [166564794, 'Project'],`
+
+_Note:_ The values for `projects`, `labels`, and `filters` are inclusive--any task matching one or more of these values will be displayed.
+
+_See also:_ `debug` for finding project IDs in the console.
+
+> [!TIP]
+> You can also get project IDs using the Todoist website:
+>
+> 1. Go to Todoist (Log in if you aren't)
+> 2. Click on a Project in the left menu
+> 3. Your browser URL will change to something like `https://app.todoist.com/app/project/166564897`. Look in the url for `project/` followed by a number. In this example, the ID is 166564897.
+
+---
+
+### :jigsaw: `labels`
+
+Array of label names you want to include in the display.
+
+-   **Possible values:**` [string]`
+-   **Default value:**`[ ]`
+-   **Example:**`labels: ['MagicMirror', 'Important', 'DoInTheMorning'],` will display all tasks from all projects that have one or more of these labels
+
+_Note:_ The values for `projects`, `labels`, and `filters` are inclusive--any task matching one or more of these values will be displayed.
+
+---
+
+### :jigsaw: `filters`
+
+Array of filers to include in the display. Including a filter will include all items in that filter.
+
+-   **Possible values:** `[string]`
+-   **Default value:** `[ ]`
+-   **Example:** `filers: ['Assigned to me'],` will display all tasks assigned to the account `token` set.
+
+_Note:_ The values for `projects`, `labels`, and `filters` are inclusive--any task matching one or more of these values will be displayed.
+
+> [!TIP]  
+> Be careful using filters when including more than one Todoist account. Todoist provides several [default filters](https://todoist.com/help/articles/introduction-to-filters-V98wIH) including "Assigned to me", "Priority 1", Priority 2", "Priority 3", Priority 4"
+
+---
+
+### :jigsaw: `displayOrder`
+
+Array of columns to display for each task. Columns appear in whatever order set here.
+
+-   **Possible values:**
+    -   `content` - The text of the task.
+    -   `duedate` - The due date of the task.
+    -   `countdown` - The number of days until the task is due.
+    -   `priority` - The priority of the task.
+    -   `labels` - The text of the task.
+    -   `assignee` - The user who is responsible for accomplishing the current task (shared projects only).
+    -   `avatar` - The 35x35 pixels image of the user's avatar.
+    -   `project` - The name of the project holding the task.
+-   **Default value:** `['content', 'duedate', 'countdown', 'priority', 'labels', 'assignee', 'avatar', 'project']`
+-   **Example:** `displayOrder: ['duedate', 'content']` will display tasks using two columns. The "duedate" column will be on the left and the "content" column on the right.
+
+---
+
+### :jigsaw: `priorityColors`
+
+Set custom colors to associate with each priority from lowest to highest.
+
+-   **Possible values:**`priority: hexcode`
+-   **Default value:**`priorityColors: {1: '#333333', 2: '#246fe0', 3: '#eb8909', 4: '#d1453b'}`
+
+_Note:_ 1 is the LOWEST priority and 4 is the HIGHEST or most urgent priority
+
+> [!WARN]
+> If you include this setting, you **must include all four priorities** within the brackets!
+
+---
+
+### :jigsaw: `displayProjectAs`
+
+Method to indicate project for each task.
+
+-   **Possible values:**
+    -   `name` - displays the name of the project only
+    -   `color` - displays the color of the project only
+    -   `both` - displays the name of the project surrounded by a border in the project color
+-   **Default value:**`displayProjectAs: 'both',`
+
+_Note:_ This setting has no effect if the `project` column is not included in the `displayOrder` setting.
+
+---
+
+### :jigsaw: `displayColumnHeadings`
+
+Method to indicate the header of each column displayed
+
+-   **Possible values:** + `text` - displays the name column + `icons` - displays an icon representing the information in the column + `none` - excludes any headers from displaying +**Default value:**`displayColumnHeadings: 'icons'`
+
+---
+
+### :jigsaw: `maximumEntries`
+
+Maximum number of tasks to be shown.
+
+-   **Possible values:**`int`
+-   **Default value:**`10`
+-   **Example:**`maximumEntries: 30,`
+
+---
+
+### :jigsaw: `interval`
+
+How often the module should load new todos.
+
+-   **Possible values:**`int` in `milliseconds`
+-   **Default value:**`10*60*1000`
+-   **Default value:**`interval: 30*60*1000,` will check for task updates every 30 minutes
+
+_Note:_ Be careful, this is in ms, NOT seconds! So, too low a number will lock you out for repeated server attempts!
+
+---
+
+### :jigsaw: `fade`
+
+Fade todos to black. (Gradient)
+
+-   **Possible values:**`true` or `false`
+-   **Default value:**`true`
+-   **Default value:**`fade: false,`
+
+---
+
+### :jigsaw: `fadePoint`
+
+How far down the list does fading start
+
+-   **Possible values:**`0`-`1` (top - bottom)
+-   **Default value:**`0.25`
+-   **Default value:**`fadePoint: 0.50,` will begin fading tasks half way through the list
+
+---
+
+### :jigsaw: `fadeMinimumOpacity`
+
+Opacity of the last item if fade is enabled.
+
+-   **Possible values:** `0` - `1` (completely transparent - no fade)
+-   **Default value:** `0.25` will cause the bottom task to be mostly transparent
+-   **Example:** `fadeMinimumOpacity: 0.10,` will cause the bottom task to be almost completely transparent
+
+---
+
+### :jigsaw: `sortType`
+
+This will determine the sorting method used when displaying your tasks.
+
+-   **Possible values:**
+    -   `'todoist'` - Sort based on the order in Todoist.
+    -   `'priority'` - Sort based on the priority, in Descending order. (Highest priority first)
+    -   `'dueDateAsc'` - Sort based on the Due Date of the Todo Ascending. (Oldest date first)
+    -   `'dueDateDesc'` - Sort based on the Due Date of the Todo Descending. (Newest date first)
+    -   `'dueDateDescPriority'` - Sort based on the Due Date of the Todo Descending and by priority high to low.
+-   **Default value:** `'todoist'`
+-   **Example:**` sortType: 'dueDateDesc',`
+
+---
+
+### :jigsaw: `maxTitleLength`
+
+Maximum number of characters to display on the same line in one column
+
+-   **Possible values:** `10` - `50`
+-   **Default value:** `25`
+-   **Example:** `maxTitleLength: 40,` will show only the first 40 characters of the task content
+
+---
+
+### :jigsaw: `displayTasksWithinDays`
+
+Only display tasks with a due date within set number of days or are past due.
+
+`displayTasksWithinDays` days. For instance, setting this to 0 will only show tasks due today or overdue. , `displayTasksWithoutDue` controls those.
+
+-   **Possible values:** `-1` - `∞`
+-   **Default value:** `-1` (display all tasks)
+-   **Example:** `0` will only display tasks that are due today or are past due
+
+_Note:_ This will not affect the display of tasks without a due date.
+
+---
+
+### :jigsaw: `displayTasksWithoutDue`
+
+Controls if tasks without a due date are displayed.
+
+-   **Possible values:**`boolean`
+-   **Default value:**`true`
+-   **Example:**`displayTasksWithoutDue: false,` will display only tasks with due dates
+
+---
+
+### :jigsaw: `displaySubtasks`
+
+Controls if subtasks are displayed or not.
+
+-   **Possible values:**`boolean`
+-   **Default value:**`true`
+-   **Example:**`displaySubtasks: false,` will not display any subtasks under included tasks
+
+---
+
+### :jigsaw: `hideWhenEmpty`
+
+Hide widget (including header) when no tasks meet criteria for display
+
+-   **Possible values:**`boolean`
+-   **Default value:**`false`
+-   **Example:**`hideWhenEmpty: true,` will cause the entire module to disappear if no tasks would be displayed
+
+## Example Module Config
+
+The following is an example of a default configuation object that includes all settings.
+
+    config: {
+    	accessTokens: [],
+    	projects: [],
+    	labels: [],
+    	filters: ["Priority 4],
+    	maximumEntries: 10,
+    	sortType: "todoist",
+    	displayOrder: ["content", "duedate", "countdown", "priority", "labels", "assignee", "avatar", "project"],
+    	displayProjectAs: "both",
+    	displayColumnHeadings: "icons",
+    	maxTitleLength: 50,
+    	displayTasksWithoutDue: true,
+    	displayTasksWithinDays: -1,
+    	displaySubtasks: true,
+    	reloadInterval: 10 * 60 * 1000,
+    	fade: true,
+    	fadePoint: 0.25,
+    	fadeMinimumOpacity: 0.25,
+    	priorityColors: {
+    		1: "#333333",
+    		2: "#246fe0",
+    		3: "#eb8909",
+    		4: "#d1453b"
+    	},
+    	debug: true,
+    },
 
 ## Dependencies
-- [request](https://www.npmjs.com/package/request) (installed via `npm install`)
 
+Install all with `npm install` command in module directory.
 
-# Screen shots
-A few sample Screen Shots to show you what this module looks like. It's fairly configurable and changes considerably depending on how you use Todoist, how many projects you include, and how you sort.  
-
-Option enabled: displayAvatar: true
-![My image](https://raw.githubusercontent.com/thyed/MMM-Todoist/master/todoist-avatars.png)
-
-Option enabled: displayLastUpdate: true, wrapEvents: true, maxTitleLenght: 25
-![My image](https://github.com/AgP42/MMM-Todoist/blob/master/todoist.png)
-
-Options enabled: orderBy:todoist, showProjects: true
-![My image](http://cbrooker.github.io/MMM-Todoist/Screenshots/1.png)  
-
-Options enabled: orderBy:dueDateAsc, showProjects: true
-![My image](http://cbrooker.github.io/MMM-Todoist/Screenshots/2.png)  
-
-Options enabled: orderBy:dueDateAsc, showProjects: false
-![My image](http://cbrooker.github.io/MMM-Todoist/Screenshots/3.png)  
-
-Options enabled: orderBy:todoist, showProjects: false
-![My image](http://cbrooker.github.io/MMM-Todoist/Screenshots/4.png)  
-
-Options enabled: orderBy:todoist, showProjects: true
-![My image](http://cbrooker.github.io/MMM-Todoist/Screenshots/5.png)  
-
-Options enabled: orderBy:dueDateAsc, showProjects: true
-![My image](http://cbrooker.github.io/MMM-Todoist/Screenshots/6.png)  
-
-Options enabled: orderBy:dueDateAsc, showProjects: false
-![My image](http://cbrooker.github.io/MMM-Todoist/Screenshots/7.png)  
-
+-   [request](https://www.npmjs.com/package/request)
+-   [node-fetch](https://www.npmjs.com/package/node-fetch)
 
 ## Attribution
 
-This project is based on work done by Paul-Vincent Roll in the MMM-Wunderlist module. (https://github.com/paviro/MMM-Wunderlist)
-
-
-The MIT License (MIT)
-=====================
-
-Copyright © 2016 Chris Brooker
-
-Permission is hereby granted, free of charge, to any person
-obtaining a copy of this software and associated documentation
-files (the “Software”), to deal in the Software without
-restriction, including without limitation the rights to use,
-copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the
-Software is furnished to do so, subject to the following
-conditions:
-
-The above copyright notice and this permission notice shall be
-included in all copies or substantial portions of the Software.
-
-**The software is provided “as is”, without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages or other liability, whether in an action of contract, tort or otherwise, arising from, out of or in connection with the software or the use or other dealings in the software.**
+This project is based on work done by Chris Booker in the MMM-Todoist module (https://github.com/cbrooker/MMM-Todoist) Paul-Vincent Roll in the MMM-Wunderlist module. (https://github.com/paviro/MMM-Wunderlist)

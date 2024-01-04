@@ -1,27 +1,31 @@
 {
-  "name": "Magic-Mirror-Module-Todoist-Multi",
-  "version": "1.0.0",
-  "description": "Multiple Todoist accounts module for the Magic Mirror.",
-  "repository": {
-    "type": "git",
-    "url": "git+hhttps://github.com/FutureYamask/MMM-Todoist-Multi.git"
-  },
-  "keywords": [
-    "magic mirror",
-    "smart mirror",
-    "Todoist",
-    "module"
-  ],
-  "author": "Amos Glenn",
-  "contributors": "https://github.com/FutureYamask/MMM-Todoist-Multi/graphs/contributors",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/FutureYamask/MMM-Todoist-Multi/issues"
-  },
-  "homepage": "hhttps://github.com/FutureYamask/MMM-Todoist-Multi#readme",
-  "dependencies": {
-    "audit": "^0.0.6",
-    "node-fetch": "^2.6.9",
-    "request": "latest"
-  }
+    "name": "Magic-Mirror-Module-Todoist-Multi",
+    "version": "1.0.0",
+    "description": "Multiple Todoist accounts module for the Magic Mirror.",
+    "repository": {
+        "type": "git",
+        "url": "git+hhttps://github.com/FutureYamask/MMM-Todoist-Multi.git"
+    },
+    "keywords": [
+        "magic mirror",
+        "smart mirror",
+        "Todoist",
+        "module"
+    ],
+    "author": "Amos Glenn",
+    "contributors": [
+        "https://github.com/FutureYamask/MMM-Todoist-Multi/graphs/contributors"
+    ],
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/FutureYamask/MMM-Todoist-Multi/issues"
+    },
+    "homepage": "hhttps://github.com/FutureYamask/MMM-Todoist-Multi#readme",
+    "dependencies": {
+        "node-fetch": "^2.6.9",
+        "request": "latest"
+    },
+    "devDependencies": {
+        "prettier": "^3.1.1"
+    }
 }
